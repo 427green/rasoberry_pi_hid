@@ -11,17 +11,23 @@
 #define DT 1
 #define SW 0
 
+//ロータリエンコーダーの関数を回す
 void Rotary_recorder() {
+  //一度しか実行せず、current_clkが0で変化するのか or 1で変化するのかの基準となる
   bool last_clk = gpio_get(CLK);
 
   while (true) {
+    //ロータリエンコーダーは左右と押下タクトスイッチ構成となっている。
+    //タクトスイッチを押すとLEDがすべて消える
     if (!gpio_get(SW)) {
       gpio_put(LED_R, 0);
       gpio_put(LED_L, 0);
     }
+    //現在のCLKをboolに代入する。
     bool current_clk = gpio_get(CLK);
     if (current_clk != last_clk) {
       if (current_clk == 0) {
+        //DTとCLKは位相が９０度ずれるため、時計回りか反時計回りか判定可能
         if (gpio_get(DT) != current_clk) {
           gpio_put(LED_R, 1);
           gpio_put(LED_L, 0);
@@ -62,6 +68,7 @@ int main() {
   gpio_pull_up(SW);
   /////////////////////////////////////////////////////////////
 
+  //whileで常に実行
   while (true) {
     Rotary_recorder();
   }
